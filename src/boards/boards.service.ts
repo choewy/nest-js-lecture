@@ -11,6 +11,10 @@ export class BoardsService {
     return this.boards;
   }
 
+  getBoardById(id: string): Board {
+    return this.boards.find((board) => board.id === id);
+  }
+
   createBoard(createBoardDto: CreateBoardDto) {
     const { title, description } = createBoardDto;
     const board: Board = {
