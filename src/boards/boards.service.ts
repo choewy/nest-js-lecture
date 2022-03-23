@@ -5,7 +5,14 @@ import { CreateBoardDto } from './dto/create-board.dto';
 
 @Injectable()
 export class BoardsService {
-  private boards: Board[] = [];
+  private boards: Board[] = [
+    {
+      id: '0aa62910-aa50-11ec-ac11-4bbf39811cac',
+      title: '테스트 입니다.',
+      description: '테스트의 내용입니다.',
+      status: BoardStatus.PUBLIC,
+    },
+  ];
 
   getAllBoards(): Board[] {
     return this.boards;
@@ -29,6 +36,12 @@ export class BoardsService {
     };
 
     this.boards.push(board);
+    return board;
+  }
+
+  updateBoardStatusById(id: string, status: BoardStatus): Board {
+    const board = this.getBoardById(id);
+    board.status = status;
     return board;
   }
 }
