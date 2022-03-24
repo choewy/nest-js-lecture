@@ -9,7 +9,7 @@ export class BoardStatusValidationPipe implements PipeTransform {
 
     if (!this.isStatusValid(value)) {
       throw new BadRequestException(
-        `${value}는 게시물의 공개여부로 설정할 수 없습니다.`,
+        `'${value}'는 게시물의 공개여부로 설정할 수 없습니다.`,
       );
     }
 
