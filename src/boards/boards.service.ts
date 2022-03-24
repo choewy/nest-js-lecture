@@ -5,6 +5,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { FindOneOptions } from 'typeorm';
 
 @Injectable()
 export class BoardsService {
@@ -19,7 +20,7 @@ export class BoardsService {
   }
 
   async getBoardById(id: number): Promise<Board> {
-    const found = await this.boardRepository.findOne(id);
+    const found = await this.boardRepository.findOne({ where: { id } });
     if (!found) {
       throw new NotFoundException(
         `{id: ${id}}에 해당하는 게시물을 찾을 수 없습니다.`,
