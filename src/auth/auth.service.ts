@@ -12,12 +12,14 @@ import {
 } from './dto/auth-credentials.dto';
 import { User } from './user.entity';
 import * as bcrpyt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async signUp(
@@ -45,12 +47,14 @@ export class AuthService {
 
   async signIn(
     authSignInCredentialsDto: AuthSignInCredentialsDto,
-  ): Promise<string> {
+  ): Promise<{ accessToken: string }> {
     const { userid, passwd } = authSignInCredentialsDto;
     const user = await this.userRepository.findOne({ where: { userid } });
     if (user) {
       if (await bcrpyt.compare(passwd, user.passwd)) {
-        return 'Login Success';
+        const payload = { userid, name: user.name };
+        const accessToken = await this.jwtService.sign(payload);
+        return { accessToken };
       }
       throw new UnauthorizedException('Incorrected Password');
     }
