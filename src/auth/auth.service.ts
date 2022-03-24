@@ -2,10 +2,14 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import {
+  AuthSignUpCredentialsDto,
+  AuthSignInCredentialsDto,
+} from './dto/auth-credentials.dto';
 import { User } from './user.entity';
 import * as bcrpyt from 'bcryptjs';
 
@@ -16,8 +20,10 @@ export class AuthService {
     private userRepository: Repository<User>,
   ) {}
 
-  async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    const { userid, passwd, name } = authCredentialsDto;
+  async signUp(
+    authSignUpCredentialsDto: AuthSignUpCredentialsDto,
+  ): Promise<void> {
+    const { userid, passwd, name } = authSignUpCredentialsDto;
     const salt = await bcrpyt.genSalt();
     const hashedPasswd = await bcrpyt.hash(passwd, salt);
     const user = this.userRepository.create({
@@ -35,5 +41,19 @@ export class AuthService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  async signIn(
+    authSignInCredentialsDto: AuthSignInCredentialsDto,
+  ): Promise<string> {
+    const { userid, passwd } = authSignInCredentialsDto;
+    const user = await this.userRepository.findOne({ where: { userid } });
+    if (user) {
+      if (await bcrpyt.compare(passwd, user.passwd)) {
+        return 'Login Success';
+      }
+      throw new UnauthorizedException('Incorrected Password');
+    }
+    throw new UnauthorizedException('User not Found');
   }
 }
