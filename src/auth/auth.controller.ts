@@ -1,8 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
-  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -12,6 +12,8 @@ import {
   AuthSignUpCredentialsDto,
   AuthSignInCredentialsDto,
 } from './dto/auth-credentials.dto';
+import { GetUser } from './get-user.decorator';
+import { User } from './user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -31,9 +33,9 @@ export class AuthController {
     return this.authService.signIn(authSignInCredentialsDto);
   }
 
-  @Post()
+  @Get()
   @UseGuards(AuthGuard())
-  validate(@Req() req) {
-    return JSON.parse(req);
+  validate(@GetUser() user: User) {
+    console.log(user);
   }
 }
