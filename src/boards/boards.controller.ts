@@ -20,8 +20,8 @@ export class BoardsController {
   constructor(private boardsService: BoardsService) {}
 
   @Get()
-  getAllBoards() {
-    // return this.boardsService.getAllBoards();
+  getAllBoards(): Promise<Board[]> {
+    return this.boardsService.getAllBoards();
   }
 
   @Get('/:id')
@@ -29,15 +29,15 @@ export class BoardsController {
     return this.boardsService.getBoardById(id);
   }
 
+  @Post()
+  @UsePipes(ValidationPipe)
+  createBoard(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
+    return this.boardsService.createBoard(createBoardDto);
+  }
+
   @Delete('/:id')
   deleteBoardById(@Param('id') id: string): void {
     // this.boardsService.deleteBoardById(id);
-  }
-
-  @Post()
-  @UsePipes(ValidationPipe)
-  createBoard(@Body() createBoardDto: CreateBoardDto) {
-    // return this.boardsService.createBoard(createBoardDto);
   }
 
   @Patch('/:id/status')

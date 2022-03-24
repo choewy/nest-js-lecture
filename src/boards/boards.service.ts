@@ -14,6 +14,10 @@ export class BoardsService {
     private boardRepository: BoardRepository,
   ) {}
 
+  async getAllBoards(): Promise<Board[]> {
+    return await this.boardRepository.find();
+  }
+
   async getBoardById(id: number): Promise<Board> {
     const found = await this.boardRepository.findOne(id);
     if (!found) {
@@ -22,6 +26,18 @@ export class BoardsService {
       );
     }
     return found;
+  }
+
+  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+    const { title, description } = createBoardDto;
+    const board = this.boardRepository.create({
+      title,
+      description,
+      status: BoardStatus.PUBLIC,
+    });
+
+    await this.boardRepository.save(board);
+    return board;
   }
 
   //   private boards: Board[] = [
