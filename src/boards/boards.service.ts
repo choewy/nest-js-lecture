@@ -5,7 +5,6 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
-import { FindOneOptions } from 'typeorm';
 
 @Injectable()
 export class BoardsService {
