@@ -6,15 +6,18 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User } from './user.entity';
+import * as config from 'config';
+
+const JWTConfig = config.get('jwt');
+const secret = process.env.JWT_SECRET || JWTConfig.secret;
+const expiresIn = process.env.JWT_EXPIRES || JWTConfig.expiresIn;
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: 'JsonNebBTokenSecretKey',
-      signOptions: {
-        expiresIn: 60 * 60,
-      },
+      secret,
+      signOptions: { expiresIn },
     }),
     TypeOrmModule.forFeature([User]),
   ],
