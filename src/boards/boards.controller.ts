@@ -29,6 +29,12 @@ export class BoardsController {
     return this.boardsService.getAllBoards();
   }
 
+  @Get('/me')
+  @UseGuards(AuthGuard())
+  getMyBoards(@GetUser() user: User): Promise<Board[]> {
+    return this.boardsService.getMyBoards(user);
+  }
+
   @Get('/:id')
   getBoardById(@Param('id', ParseIntPipe) id: number): Promise<Board> {
     return this.boardsService.getBoardById(id);
