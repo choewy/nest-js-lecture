@@ -52,8 +52,11 @@ export class BoardsController {
 
   @Delete('/:id')
   @UseGuards(AuthGuard())
-  deleteBoardById(@Param('id', ParseIntPipe) id: number): Promise<number> {
-    return this.boardsService.deleteBoard(id);
+  deleteBoardById(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User,
+  ): Promise<number> {
+    return this.boardsService.deleteBoard(id, user);
   }
 
   @Patch('/:id/status')

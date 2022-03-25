@@ -50,8 +50,8 @@ export class BoardsService {
     return board;
   }
 
-  async deleteBoard(id: number) {
-    const { affected } = await this.boardRepository.delete(id);
+  async deleteBoard(id: number, user: User) {
+    const { affected } = await this.boardRepository.delete({ id, user });
     if (!affected) {
       throw new NotFoundException(
         `{id: ${id}}에 해당하는 게시물을 삭제할 수 없습니다.`,
