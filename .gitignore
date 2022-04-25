@@ -5,6 +5,7 @@
 # env
 src/config/env/.development.email.env
 src/config/env/.production.env
+ormconfig.json
 
 # Logs
 logs
