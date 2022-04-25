@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as fs from 'fs';
 
+/* root 경로에 ormconfig.json 생성 */
 async function makeOrmConfig() {
   const appConfig = new AppConfig(process.env);
   const typeOrmConfig = appConfig.getTypeOrmConfig();
