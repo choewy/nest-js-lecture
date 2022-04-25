@@ -3,8 +3,7 @@
 /node_modules
 
 # env
-src/config/env/.development.email.env
-src/config/env/.production.env
+src/config/env/*.env
 ormconfig.json
 
 # Logs

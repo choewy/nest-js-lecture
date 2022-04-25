@@ -1,12 +1,18 @@
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from './config/config.service';
+import { AppConfig } from './app.config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as fs from 'fs';
 
+async function makeOrmConfig() {
+  const appConfig = new AppConfig(process.env);
+  const typeOrmConfig = appConfig.getTypeOrmConfig();
+  const ormConfig = JSON.stringify(typeOrmConfig, null, 2);
+  fs.writeFileSync('ormconfig.json', ormConfig);
+}
+
 async function bootstrap() {
   await makeOrmConfig();
-
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -16,12 +22,6 @@ async function bootstrap() {
     }),
   );
   await app.listen(process.env.PORT || 3000);
-}
-
-async function makeOrmConfig() {
-  const configService = new ConfigService(process.env);
-  const typeOrmConfig = configService.getTypeOrmConfig();
-  fs.writeFileSync('ormconfig.json', JSON.stringify(typeOrmConfig, null, 2));
 }
 
 bootstrap();
