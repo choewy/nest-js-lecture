@@ -26,9 +26,3 @@ $ curl -X POST http://localhost:5000/users/login -H "Content-Type: application/j
 ```
 $ curl -X GET http://localhost:5000/users/1
 ```
-
-## Verify Email
-
-```
-
-```
