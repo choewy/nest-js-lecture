@@ -3,10 +3,9 @@ import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserInfoDto } from './dto/user-info.dto';
-import { EmailService } from 'src/email/email.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { ulid } from 'ulid';
 
 @Injectable()
@@ -14,8 +13,9 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
-    private emailService: EmailService,
+    private connection: Connection,
   ) {}
+
   async createUser(createUserDto: CreateUserDto) {
     const { email } = createUserDto;
     const isExist = await this.checkUserExists(email);
@@ -28,38 +28,47 @@ export class UsersService {
 
     const signupVerifyToken = uuid.v1();
     await this.saveUser(createUserDto, signupVerifyToken);
-    await this.verifyEmail(email, signupVerifyToken);
+    // await this.verifyEmail(email, signupVerifyToken);
   }
 
   async checkUserExists(email: string): Promise<boolean> {
-    const user = await this.usersRepository.findOne({ email });
-    return !user;
+    const user = await this.usersRepository.findOne({ where: { email } });
+    return user !== null;
   }
 
   async saveUser(createUserDto: CreateUserDto, signupVerifyToken: string) {
-    const { name, email, password } = createUserDto;
-    const user = new UserEntity();
-    user.id = ulid();
-    user.name = name;
-    user.email = email;
-    user.password = password;
-    user.signupVerifyToken = signupVerifyToken;
-    await this.usersRepository.save(user);
+    /* 트랜잭션 처리를 위한 queryRunner 객체 생성 */
+    const queryRunner = this.connection.createQueryRunner();
+
+    /* DB 연결 후 트랜젝션 시작 */
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const { name, email, password } = createUserDto;
+      const user = new UserEntity();
+      user.id = ulid();
+      user.name = name;
+      user.email = email;
+      user.password = password;
+      user.signupVerifyToken = signupVerifyToken;
+      await queryRunner.manager.save(user);
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      /* 오류 발생 시 롤백 처리 */
+      await queryRunner.rollbackTransaction();
+    } finally {
+      /* 반드시 queryRunner 객체 해제 */
+      await queryRunner.release();
+    }
   }
 
-  private async verifyEmail(
-    email: string,
-    signupVerifyToken: string,
-  ): Promise<string> {
-    // TODO
-    /**
-     * DB에서 signupVerify로 회원가입 처리 중인 유저가 있는지 조회
-     * 없다면, 에러 처리
-     * 있다면, 바로 로그인 상태가 되도록 JWT 발급
-     */
-    return this.emailService.sendMemberJoinEmail(email, signupVerifyToken);
-    // throw new Error('Method not implemented');
-  }
+  // private async verifyEmail(
+  //   email: string,
+  //   signupVerifyToken: string,
+  // ): Promise<string> {
+  //   return this.emailService.sendMemberJoinEmail(email, signupVerifyToken);
+  // }
 
   async login(userLoginDto: UserLoginDto): Promise<string> {
     console.log(userLoginDto);
