@@ -12,7 +12,7 @@ const envFile =
 ## Nest JS
 
 ```env
-PORT=
+PORT=3000
 ```
 
 ## TypeORM
