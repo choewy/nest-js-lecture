@@ -1,12 +1,12 @@
 import { ValidationPipe } from '@nestjs/common';
-import { AppConfig } from './app.config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { AppConfig } from './app.config';
 import * as fs from 'fs';
 
 /* root 경로에 ormconfig.json 생성 */
 async function makeOrmConfig() {
-  const appConfig = new AppConfig(process.env);
+  const appConfig = new AppConfig();
   const typeOrmConfig = appConfig.getTypeOrmConfig();
   const ormConfig = JSON.stringify(typeOrmConfig, null, 2);
   fs.writeFileSync('ormconfig.json', ormConfig);

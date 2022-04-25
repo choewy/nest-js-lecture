@@ -9,7 +9,9 @@ dotenv.config({
 });
 
 export class AppConfig {
-  constructor(private env: { [key: string]: string | undefined }) {}
+  constructor(
+    private env: { [key: string]: string | undefined } = process.env,
+  ) {}
 
   private envItem(key: string, throwOnMissing = true): string {
     const value = this.env[key];
