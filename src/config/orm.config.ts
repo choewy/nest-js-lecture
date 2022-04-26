@@ -8,7 +8,7 @@ dotenv.config({
       : './env/.development.env',
 });
 
-export class AppConfig {
+export class OrmConfig {
   constructor(
     private env: { [key: string]: string | undefined } = process.env,
   ) {}
@@ -21,7 +21,7 @@ export class AppConfig {
     return value;
   }
 
-  getTypeOrmConfig(): TypeOrmModuleOptions {
+  genTypeOrmConfig(): TypeOrmModuleOptions {
     return {
       ssl: !(this.envItem('NODE_ENV', false) === 'development'),
       type: 'mysql',

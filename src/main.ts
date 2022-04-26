@@ -1,20 +1,19 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AppConfig } from './app.config';
-import * as fs from 'fs';
+import { OrmConfig } from './config/orm.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 
 /* root 경로에 ormconfig.json 생성 */
-async function makeOrmConfig() {
-  const appConfig = new AppConfig();
-  const typeOrmConfig = appConfig.getTypeOrmConfig();
-  const ormConfig = JSON.stringify(typeOrmConfig, null, 2);
-  fs.writeFileSync('ormconfig.json', ormConfig);
+async function createOrmConfig() {
+  const ormConfig = new OrmConfig().genTypeOrmConfig();
+  const ormConfigJson = JSON.stringify(ormConfig, null, 2);
+  fs.writeFileSync('ormconfig.json', ormConfigJson);
 }
 
 async function bootstrap() {
-  await makeOrmConfig();
+  await createOrmConfig();
 
   const config = new DocumentBuilder()
     .setTitle('Next API')
