@@ -1,32 +1,71 @@
-import * as uuid from 'uuid';
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Injectable } from '@nestjs/common';
 import { UserLoginDto } from './dto/user-login.dto';
-import { UserInfoDto } from './dto/user-info.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { Connection, Repository } from 'typeorm';
+import { UsersException } from './users.exception';
 import { ulid } from 'ulid';
-import { UsersException } from './users.configs';
+import bcrypt from 'bcrypt';
+import { UserSignupDto } from './dto/user-signup.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
+    private usersExceptions: UsersException,
     private connection: Connection,
-    private exceptions: UsersException,
   ) {}
 
-  async checkUserExists(email: string): Promise<boolean> {
+  private hashPassword(password: string): string {
+    const saltKey = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(password, saltKey);
+  }
+
+  private async findUserByEmail(email: string): Promise<boolean> {
     const user = await this.usersRepository.findOne({ where: { email } });
     return user !== null;
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    const { email } = createUserDto;
-    const isExist = await this.checkUserExists(email);
-    if (isExist) this.exceptions.AlreadyExistUser();
+  private async findUserById(userId: string) {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where({ id: userId, deletedAt: null })
+      .select([
+        'user.id',
+        'user.email',
+        'user.name',
+        'user.role',
+        'user.deletedAt',
+      ])
+      .getOne();
+    if (!user) throw this.usersExceptions.NotFound();
+    if (user.deletedAt) throw this.usersExceptions.Suspended();
+    return user;
+  }
+
+  private async findUserByEmailAndPassword(email: string, password: string) {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where({ email, password })
+      .select([
+        'user.id',
+        'user.email',
+        'user.name',
+        'user.role',
+        'user.deletedAt',
+      ])
+      .getOne();
+
+    if (!user) throw this.usersExceptions.WrongEmailOrPassword();
+    if (user.deletedAt) throw this.usersExceptions.Suspended();
+    return user;
+  }
+
+  async userSignup(userSignupDto: UserSignupDto) {
+    const { email } = userSignupDto;
+    const isExist = await this.findUserByEmail(email);
+    if (isExist) this.usersExceptions.AlreadyExist();
 
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
@@ -35,7 +74,7 @@ export class UsersService {
     try {
       const user = new UserEntity();
       user.id = ulid();
-      user.password = 'HASHED PASSWORD';
+      user.password = this.hashPassword(user.password);
       await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
     } catch (e) {
@@ -45,19 +84,17 @@ export class UsersService {
     }
   }
 
-  async login(userLoginDto: UserLoginDto): Promise<string> {
-    console.log(userLoginDto);
+  async userLogin(userLoginDto: UserLoginDto): Promise<string> {
+    const { email, password } = userLoginDto;
+    const user = await this.findUserByEmailAndPassword(email, password);
     // TODO
     /**
-     * email, password를 가진 유저가 존재하는지 확인
-     * 없다면, 에러 처리
-     * 있다면 JWT 발급
+     * 토큰 생성
      */
     throw new Error('Method not implemented');
   }
 
-  async getUserInfo(userId: string): Promise<UserInfoDto> {
-    console.log(userId);
-    throw new Error('Method not implemented');
+  async userInfo(userId: string) {
+    return await this.findUserById(userId);
   }
 }
