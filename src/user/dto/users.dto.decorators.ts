@@ -6,8 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { IsNotIncludes } from './pipe/is-not-includes.pipe';
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { IsNotIncludes } from '../pipe/is-not-includes.pipe';
 
 export class UsersDtoDecorators {
   IsEmailString = () => IsString({ message: '이메일 형식에 맞지 않습니다.' });
@@ -39,11 +38,4 @@ export class UsersDtoDecorators {
     Matches(/^[A-Za-z\d!@#$%^&*()]{8,30}$/, {
       message: '비밀번호 형식에 맞지 않습니다.',
     });
-}
-
-@Injectable()
-export class UsersException {
-  AlreadyExistUser = () => {
-    throw new UnprocessableEntityException('이미 존재하는 이메일 계정입니다.');
-  };
 }
