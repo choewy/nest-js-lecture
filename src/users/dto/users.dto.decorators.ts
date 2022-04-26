@@ -28,7 +28,7 @@ export class UsersDtoDecorators {
       message: '이름은 2-30자 이내로 입력하세요.',
     });
   NameMaxLength = () =>
-    MinLength(30, {
+    MaxLength(30, {
       message: '이름은 2-30자 이내로 입력하세요.',
     });
 

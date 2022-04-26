@@ -1,15 +1,15 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 
 @Injectable()
 export class UsersException {
   AlreadyExist = () => {
-    throw new UnprocessableEntityException('이미 존재하는 이메일 계정입니다.');
+    throw new ConflictException('이미 존재하는 이메일 계정입니다.');
   };
   NotFound = () => {
     throw new NotFoundException('사용자 정보를 찾을 수 없습니다.');
