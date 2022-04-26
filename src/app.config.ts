@@ -33,6 +33,7 @@ export class AppConfig {
       entities: ['dist/**/*.entity{.ts,.js}'],
       migrationsTableName: 'migrations',
       migrations: ['src/migration/*.ts'],
+      synchronize: Boolean(this.envItem('DATABASE_SYNC')),
       cli: {
         migrationsDir: 'src/migration',
       },
