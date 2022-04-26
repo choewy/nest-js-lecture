@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { OrmConfig } from './config/orm.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WinstonModule } from 'nest-winston';
+import winstonConfig from './config/winston.config';
 import * as fs from 'fs';
 
 /* root 경로에 ormconfig.json 생성 */
@@ -21,8 +23,13 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(winstonConfig),
+  });
+
   const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('/ApiDocs', app, document);
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -31,7 +38,6 @@ async function bootstrap() {
     }),
   );
 
-  SwaggerModule.setup('/ApiDocs', app, document);
   await app.listen(process.env.PORT || 3000);
 }
 

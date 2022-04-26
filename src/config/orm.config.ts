@@ -1,11 +1,12 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 
+const envDirPath = `${__dirname}/env`;
 dotenv.config({
   path:
     process.env.NODE_ENV === 'production'
-      ? './env/.production.env'
-      : './env/.development.env',
+      ? `${envDirPath}/.production.env`
+      : `${envDirPath}/.development.env`,
 });
 
 export class OrmConfig {
@@ -16,7 +17,7 @@ export class OrmConfig {
   private envItem(key: string, throwOnMissing = true): string {
     const value = this.env[key];
     if (!value && throwOnMissing) {
-      throw new Error(`config error - missing env.${key}`);
+      throw new Error(`ConfigError: missing env.${key}`);
     }
     return value;
   }
