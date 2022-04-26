@@ -1,8 +1,8 @@
-import { UsersDtoDecorators } from '../users.configs';
+import { UsersDtoDecorators } from './users.dto.decorators';
 
 const Decorators = new UsersDtoDecorators();
 
-export class CreateUserDto {
+export class UserSignupDto {
   @Decorators.IsEmailString()
   @Decorators.IsEmailValid()
   @Decorators.EmailMaxLength()
