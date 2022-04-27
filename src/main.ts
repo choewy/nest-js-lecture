@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import winstonConfig from './config/winston.config';
 import * as fs from 'fs';
+import { HttpExceptionFilter } from './filter/http.exception.filter';
 
 /* root 경로에 ormconfig.json 생성 */
 async function createOrmConfig() {

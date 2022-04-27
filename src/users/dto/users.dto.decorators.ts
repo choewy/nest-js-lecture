@@ -36,6 +36,6 @@ export class UsersDtoDecorators {
     IsString({ message: '비밀번호 형식에 맞지 않습니다.' });
   PasswordMatches = () =>
     Matches(/^[A-Za-z\d!@#$%^&*()]{8,30}$/, {
-      message: '비밀번호 형식에 맞지 않습니다.',
+      message: '비밀번호는 8자리 이상으로 입력하세요.',
     });
 }

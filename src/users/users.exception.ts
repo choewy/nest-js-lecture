@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -19,5 +20,13 @@ export class UsersException {
   };
   Suspended = () => {
     throw new ForbiddenException('이용 정지 상태이거나 삭제된 계정입니다.');
+  };
+  DatabaseError = () => {
+    throw new InternalServerErrorException(
+      '데이터베이스 처리 중에 오류가 발생하였습니다.',
+    );
+  };
+  Authorization = () => {
+    throw new UnauthorizedException('로그인이 필요합니다.');
   };
 }

@@ -1,37 +1,28 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Inject,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserSignupDto } from './dto/user-signup.dto';
 import { UserLoginDto } from './dto/user-login.dto';
-import { UserEntity } from './user.entity';
-import { LoggerService } from 'src/logger/logger.service';
+import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    @Inject(Logger) private readonly logge: LoggerService,
-    private readonly userService: UsersService,
-  ) {}
+  constructor(private readonly userService: UsersService) {}
 
   @Post()
   async userSignup(@Body() userSignupDto: UserSignupDto): Promise<void> {
-    await this.userService.userSignup(userSignupDto);
+    const token = await this.userService.userSignup(userSignupDto);
+    return;
   }
 
   @Post('login')
-  async userLogin(@Body() userLoginDto: UserLoginDto): Promise<string> {
-    return this.userService.userLogin(userLoginDto);
+  async userLogin(@Body() userLoginDto: UserLoginDto): Promise<void> {
+    const token = this.userService.userLogin(userLoginDto);
+    return;
   }
 
-  @Get(':id')
-  async userInfo(@Param('id') userId: string): Promise<UserEntity> {
-    return this.userService.userInfo(userId);
+  @Get()
+  async userInfo(@Req() req: Request) {
+    const authorization = String(req.headers['authorization']);
+    return this.userService.userInfo(authorization);
   }
 }
