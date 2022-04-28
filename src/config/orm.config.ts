@@ -1,18 +1,23 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { writeFileSync } from 'fs';
 
 const envDirPath = `${__dirname}/env`;
-dotenv.config({
-  path:
-    process.env.NODE_ENV === 'production'
-      ? `${envDirPath}/.production.env`
-      : `${envDirPath}/.development.env`,
-});
+const path =
+  process.env.NODE_ENV === 'production'
+    ? `${envDirPath}/.production.env`
+    : `${envDirPath}/.development.env`;
+
+dotenv.config({ path });
 
 export class OrmConfig {
   constructor(
     private env: { [key: string]: string | undefined } = process.env,
-  ) {}
+  ) {
+    const ormConfig = this.genTypeOrmConfig();
+    const ormConfigJson = JSON.stringify(ormConfig, null, 2);
+    writeFileSync('ormconfig.json', ormConfigJson);
+  }
 
   private envItem(key: string, throwOnMissing = true): string {
     const value = this.env[key];
